@@ -89,7 +89,8 @@
       </p>
 
       {% if result.label == 'PNEUMONIA' %}
-        <p class="recommendation">⚠️ Contact a medical professional immediately.</p>
+        <p class="recommendation">⚠️ Contact a medical professional immediately. <br>
+        Below is the map with nearby Hospitals</p>
       {% elif result.label == 'NORMAL' %}
         <p class="recommendation">✅ No signs of pneumonia detected. You're all good!</p>
       {% endif %}

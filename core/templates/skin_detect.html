@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Skin Cancer Classifier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+
+    }
+        .navbar-nav .nav-link {
+  position: relative;
+  display: inline-block;
+  color: #000;
+  transition: color 0.3s;
+}
+
+.navbar-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0%;
+  background-color: #00C8FF; /* Blue underline */
+  transition: width 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover::after {
+  width: 100%;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #00C8FF;
+}
+
+    .box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .result-benign {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .result-malignant {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+  </style>
+  <link rel="icon" type="image/png" href="{% static 'Group 3.png' %}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+      <img src="{% static 'Group 3.png' %}" alt="Logo" width="30" height="30" class="me-2">
+      MediCareAI
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'index' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'upload' %}">Medical Summarizer</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'chatbot' %}">Medical Diagnoser</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'pneumonia_page' %}">Pneumonia Detector</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'classify_skin_image' %}">Skin image</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="box text-center">
+          <h2 class="mb-4">🧬 Skin Cancer Detector</h2>
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="image" accept="image/*" class="form-control mb-3" required>
+             <div class="d-flex justify-content-center">
+              <img id="preview" src="#" alt="Image Preview" style="display:none; max-height: 300px;" class="img-fluid rounded shadow">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Analyze Image</button>
+          </form>
+
+          {% if label %}
+            <div class="{% if label|lower == 'benign' %}result-benign{% else %}result-malignant{% endif %}">
+              <h4>Result: <strong>{{ label }}</strong></h4>
+              <p>Confidence: {{ confidence }}%</p>
+              {% if label|lower == "benign" %}
+                <p>✅ No signs of malignancy. Still, consult a specialist if unsure.</p>
+              {% else %}
+                <p>⚠️ Possible malignancy detected. Seek medical advice.</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const input = document.querySelector('input[name="image"]');
+  const preview = document.getElementById('preview');
+
+  input.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.style.display = 'block';
+        preview.src = e.target.result;
+      }
+      reader.readAsDataURL(file);
+    } else {
+      preview.style.display = 'none';
+      preview.src = "#";
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Detection Result</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .result-box {
+      max-width: 600px;
+      margin: 5rem auto;
+      background: white;
+      border-radius: 16px;
+      padding: 3rem;
+      box-shadow: 0 0 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .result-label {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .red {
+      color: #dc3545;
+    }
+
+    .green {
+      color: #28a745;
+    }
+
+    .confidence {
+      font-size: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .recommendation {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-top: 3rem;
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .back-btn:hover {
+      text-decoration: underline;
+    }
+
+    img.preview {
+      margin-top: 2rem;
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+  </style>
+  <link rel="icon" type="image/png" href="{% static 'Group 3.png' %}">
+</head>
+<body>
+
+  <div class="result-box">
+    <h2>Detection Result</h2>
+
+    {% if result.error %}
+      <p class="result-label red">{{ result.error }}</p>
+    {% else %}
+      <p class="result-label {% if result.label == 'PNEUMONIA' %}red{% else %}green{% endif %}">
+        {{ result.label }}
+      </p>
+
+      <p class="confidence">
+        Confidence: <strong>{{ result.confidence }}%</strong>
+      </p>
+
+      {% if result.label == 'PNEUMONIA' %}
+        <p class="recommendation">⚠️ Contact a medical professional immediately.</p>
+      {% elif result.label == 'NORMAL' %}
+        <p class="recommendation">✅ No signs of pneumonia detected. You're all good!</p>
+      {% endif %}
+
+      {% if image_url %}
+        <img src="{{ image_url }}" alt="Uploaded X-ray" class="preview">
+      {% endif %}
+    {% endif %}
+
+    {% if result.label == 'PNEUMONIA' %}
+  <div id="map" style="height: 400px; width: 100%; margin-top: 2rem; border-radius: 12px;"></div>
+    {% endif %}
+
+    <a href="{% url 'pneumonia_page' %}" class="back-btn">← Analyze Another X-ray</a>
+  </div>
+
+  {% if result.label == 'PNEUMONIA' %}
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBLqADRujGYOoCGma7hfBGChgkwtVjnPz8&callback=initMap"
+  async defer>
+</script>
+
+<script>
+  function initMap() {
+    const ritKosovo = { lat: 42.648284, lng: 21.164520 };
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 14,
+      center: ritKosovo,
+    });
+
+    new google.maps.Marker({
+      position: ritKosovo,
+      map: map,
+      title: "R.I.T Kosovo / AUK",
+      icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+    });
+
+    const hospitals = [
+      { name: "Spitali Amerikan Prishtinë", lat: 42.64269, lng: 21.15796 },
+      { name: "QMF 5", lat: 42.65261, lng: 21.15755 },
+      { name: "QKUK", lat: 42.64359, lng: 21.16084 },
+      { name: "QMF 6", lat: 42.65048, lng: 21.17123 },
+      { name: "QMF 1", lat: 42.87741, lng: 20.86031 },
+      { name: "QMF 2", lat: 42.67010, lng: 21.16244 },
+    ];
+
+    hospitals.forEach(h => {
+      new google.maps.Marker({
+        position: { lat: h.lat, lng: h.lng },
+        map: map,
+        title: h.name,
+        icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+      });
+    });
+  }
+</script>
+{% endif %}
+
+</body>
+</html>
